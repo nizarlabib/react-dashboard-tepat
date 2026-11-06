@@ -1,6 +1,6 @@
 export interface GetProductsParams {
   page?: number;
-  per_page?: number;
+  limit?: number;
   search?: string;
   category?: string;
   status?: string;

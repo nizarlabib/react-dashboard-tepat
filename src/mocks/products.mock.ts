@@ -10,9 +10,9 @@ const categories = [...new Set(products.map((product) => product.category))];
 
 function notFound(message: string): never {
   const error: ErrorResponse = {
-    success: false,
     message,
-    meta: { timestamp: new Date().toISOString(), code: "NOT_FOUND" },
+    code: 404,
+    error_code: "ERR_RECORD_NOT_FOUND",
   };
   throw new ApiError(error, 404);
 }

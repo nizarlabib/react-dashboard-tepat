@@ -9,9 +9,9 @@ const statuses: User["status"][] = ["active", "invited", "inactive"];
 
 function notFound(message: string): never {
   const error: ErrorResponse = {
-    success: false,
     message,
-    meta: { timestamp: new Date().toISOString(), code: "NOT_FOUND" },
+    code: 404,
+    error_code: "ERR_RECORD_NOT_FOUND",
   };
   throw new ApiError(error, 404);
 }
@@ -37,10 +37,6 @@ export const usersMock = {
       statuses.includes(params.status as User["status"])
     ) {
       filtered = filtered.filter((user) => user.status === params.status);
-    }
-
-    if (params?.role) {
-      filtered = filtered.filter((user) => user.role === params.role);
     }
 
     return mockResponse(filtered, 400);

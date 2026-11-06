@@ -1,6 +1,6 @@
 export interface GetOrdersParams {
   page?: number;
-  per_page?: number;
+  limit?: number;
   search?: string;
   status?: string;
   sort_by?: string;

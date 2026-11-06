@@ -49,8 +49,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const login = useCallback(
-    async (email: string, password: string) => {
-      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    async (username: string, password: string) => {
+      if (!username || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(username)) {
         return { ok: false, error: "Enter a valid email address." };
       }
 
@@ -62,34 +62,51 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
 
       try {
-        // Frontend-only mock authentication. This is a demonstration, not real
-        // security. The same service interface is used when a real backend is
-        // connected (see src/services/auth.service.ts).
-        const response = await authService.login({ email, password });
-        const { user: loggedInUser, token } = response;
+        const response = await authService.login({ username, password });
 
-        setUser(loggedInUser);
-        setToken(token);
+        setToken(response.access_token);
 
         try {
-          window.localStorage.setItem(
-            AUTH_STORAGE_KEY,
-            JSON.stringify({ user: loggedInUser, token }),
-          );
-        } catch {
-          // localStorage unavailable in some environments; auth still works
-          // in memory for the current session.
-        }
+          const me = await authService.me();
 
-        return { ok: true };
+          const uiUser: User = {
+            id: String(me.id),
+            name: me.fullname,
+            email: me.email,
+            role: me.role,
+          };
+
+          setUser(uiUser);
+
+          try {
+            window.localStorage.setItem(
+              AUTH_STORAGE_KEY,
+              JSON.stringify({ user: uiUser, token: response.access_token }),
+            );
+          } catch {
+            // localStorage unavailable in some environments; auth still works
+            // in memory for the current session.
+          }
+
+          return { ok: true };
+        } catch (meError) {
+          setToken(null);
+          let message = "Login succeeded but failed to load user profile.";
+
+          if (meError instanceof ApiError) {
+            message = meError.response.message;
+          }
+
+          return { ok: false, error: message };
+        }
       } catch (error) {
         let message = "Login failed. Please try again.";
 
         if (error instanceof ApiError) {
-          const firstError = Object.values(
-            error.response.errors ?? {},
-          ).flat()[0];
-          message = firstError ?? error.response.message;
+          message =
+            error.firstFieldError ??
+            error.response.message ??
+            message;
         }
 
         return { ok: false, error: message };

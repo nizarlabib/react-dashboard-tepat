@@ -1,9 +1,13 @@
 export interface GetUsersParams {
   page?: number;
-  per_page?: number;
-  search?: string;
+  limit?: number;
+  name?: string;
+  email?: string;
+  phone?: string;
   status?: string;
-  role?: string;
+  role_id?: string;
+  order_by?: string;
+  search?: string;
   sort_by?: string;
   sort_order?: "asc" | "desc";
 }

@@ -1,684 +1,745 @@
-# Task: Comprehensive UI/UX & Frontend Engineering Audit
+# Task: Align API Contract with Go Starter Service & Create Complete Project Documentation
 
-Act as a Senior UI/UX Engineer and Senior Frontend Engineer with extensive experience building production-grade SaaS applications and scalable dashboard systems.
+Act as a Senior Software Architect, Senior Go Backend Engineer, and Senior Frontend Engineer.
 
-Your task is to perform a comprehensive audit of the existing React Dashboard Starter.
+Your task is to improve the documentation of this React Dashboard Starter so it can be reused as the foundation for multiple future projects.
 
-You must evaluate the project from two perspectives:
+There are two primary objectives:
 
-1. Senior UI/UX Engineer — visual quality, usability, accessibility, interaction design, consistency, and responsive experience.
-2. Senior Frontend Engineer — architecture, code quality, TypeScript, performance, state management, security, scalability, and maintainability.
+1. Align the frontend API contract with the actual implementation of `go-starter-service`.
+2. Create comprehensive README documentation explaining how to install, configure, customize, rename, and reuse this starter for future projects.
 
-This is not merely a code review.
+This is a documentation and architecture alignment task. Inspect the actual source code before changing any contract definitions.
 
-You are expected to identify problems, explain their impact, prioritize improvements, and implement necessary fixes.
+Do not blindly follow previously proposed API response examples if they differ from the actual Go implementation.
 
-## 1. Audit Objectives
+---
 
-Evaluate whether the current project is:
+# PART A — GO STARTER SERVICE INSPECTION
 
-- Visually polished and professional.
-- Consistent across all pages.
-- Easy and intuitive to use.
-- Fully responsive.
-- Accessible.
-- Architecturally maintainable.
-- Properly typed.
-- Performance-conscious.
-- Ready for future REST API integration.
-- Suitable as a reusable dashboard starter for multiple projects.
+## 1. Locate the Backend Repository
 
-Use the following project documents as the source of truth:
+Find the existing Go starter service repository.
+
+Look for:
+- A sibling directory named `go-starter-service`.
+- Existing local Go repositories.
+- Git remote configuration.
+- Repository references in existing documentation.
+
+A previously referenced source directory was:
+
+`/var/www/go-starter-service`
+
+The intended reusable repository was also referenced as:
+
+`https://github.com/nizarlabib/go-starter-service.git`
+
+Verify the actual repository and its current source code before proceeding.
+
+If the backend repository is unavailable:
+- Do not invent its response structure.
+- Do not assume previous generic API examples are correct.
+- Document which information is missing.
+- Ask for the backend repository location before claiming contract alignment is complete.
+
+## 2. Inspect Actual Go Implementation
+
+Inspect the backend source code and identify:
+
+### Response Structure
+- Standard success response.
+- Standard error response.
+- Response envelope.
+- Data structure.
+- Message structure.
+- Metadata structure.
+- Status and application code conventions.
+
+### Pagination
+- Pagination metadata.
+- Current page field.
+- Page size or limit field.
+- Total records.
+- Total pages.
+- Pagination response format.
+- Filtering and sorting conventions.
+
+### Error Handling
+- Validation errors.
+- Unauthorized errors.
+- Forbidden errors.
+- Not found errors.
+- Conflict errors.
+- Internal server errors.
+- Application-specific error codes.
+- HTTP status code mapping.
+
+### Authentication
+- Login request and response.
+- Logout behavior.
+- Current user endpoint.
+- Access token handling.
+- Refresh token behavior, if implemented.
+- Authorization header conventions.
+- Cookie handling, if implemented.
+
+### Other Conventions
+- Date and timestamp formats.
+- UUID representation.
+- Nullable fields.
+- Empty collections.
+- JSON field naming.
+- Query parameter naming.
+- File upload and download conventions, if implemented.
+
+Inspect the actual:
+- Response DTOs.
+- Entity and model definitions.
+- HTTP handlers.
+- Middleware.
+- Error handling utilities.
+- Pagination utilities.
+- Authentication implementation.
+- Router definitions.
+
+Do not infer the API contract solely from database entities.
+
+The HTTP handler and response DTO are the primary sources of truth for the frontend contract.
+
+---
+
+# PART B — API CONTRACT ALIGNMENT
+
+## 3. Update API_CONTRACT.md
+
+Update:
+
+`docs/API_CONTRACT.md`
+
+Replace any previously proposed generic response formats with the actual response conventions found in `go-starter-service`.
+
+Requirements:
+
+1. Document the actual success response.
+2. Document the actual error response.
+3. Document the actual pagination response.
+4. Document authentication behavior.
+5. Document request and response examples.
+6. Document HTTP status codes.
+7. Document application-specific error codes.
+8. Document query parameter conventions.
+9. Document date and timestamp formats.
+10. Document nullable and optional fields.
+
+Every example must be consistent with the actual Go implementation.
+
+Clearly distinguish:
+- Verified backend behavior.
+- Proposed frontend conventions.
+- Backend features that are not yet implemented.
+
+Do not document hypothetical endpoints as existing backend functionality.
+
+## 4. Update TypeScript API Types
+
+Review and adjust the frontend types under:
+
+`src/lib/api/`
+`src/types/`
+
+Create or update types to accurately represent the Go response structure.
+
+Requirements:
+- Use TypeScript interfaces and generics appropriately.
+- Match actual JSON field names.
+- Preserve nullable fields.
+- Correctly represent pagination metadata.
+- Correctly represent error responses.
+- Avoid unnecessary transformations.
+- Avoid using `any`.
+
+Keep API response types separate from UI component types.
+
+If UI components require different structures, implement explicit mapping or adapter functions in the service layer.
+
+## 5. Update API Client
+
+Review:
+
+`src/lib/api/client.ts`
+
+Ensure the API client correctly handles the actual Go response structure.
+
+Requirements:
+- Centralized API base URL.
+- HTTP methods: GET, POST, PUT, PATCH, DELETE.
+- Query parameters.
+- Request headers.
+- JSON serialization and parsing.
+- Authentication headers or cookies according to the actual backend contract.
+- HTTP error handling.
+- Application-level error handling.
+- Request cancellation.
+- Consistent error propagation.
+
+Do not assume HTTP 200 always means application-level success if the backend uses additional success indicators.
+
+Do not silently discard error messages or application error codes.
+
+## 6. Update Service Layer
+
+Review all service modules:
+
+- `auth.service.ts`
+- `user.service.ts`
+- `product.service.ts`
+- `order.service.ts`
+- `dashboard.service.ts`
+
+Ensure:
+- All services follow the updated contract.
+- Mock and real API modes return compatible structures.
+- Pages do not call fetch directly.
+- API-specific details remain outside UI components.
+- Data transformation is handled in the service layer.
+
+If an endpoint does not exist in `go-starter-service`, keep it documented as a frontend integration placeholder rather than pretending it is already supported.
+
+## 7. Update Backend Integration Documentation
+
+Update:
+
+`docs/BACKEND_INTEGRATION.md`
+
+Explain how to connect this React starter to the Go backend.
+
+Include:
+- Backend URL configuration.
+- Environment variables.
+- API client configuration.
+- Authentication integration.
+- Request and response handling.
+- Error handling.
+- Pagination.
+- Search and filtering.
+- CORS requirements.
+- File upload considerations.
+- Troubleshooting common integration issues.
+
+Explain any differences between mock mode and real API mode.
+
+---
+
+# PART C — COMPLETE README DOCUMENTATION
+
+## 8. Create a Comprehensive README.md
+
+The root `README.md` must become the main documentation entry point for this starter.
+
+Write it for developers who may have never used this project before.
+
+Use clear explanations, practical examples, and step-by-step instructions.
+
+Do not write a README that only describes the project's technology stack.
+
+The README should cover the following sections.
+
+### 8.1 Project Introduction
+
+Explain:
+- What this project is.
+- Why this starter exists.
+- What problems it solves.
+- Who should use it.
+- What features are included.
+- How it can be reused across multiple projects.
+
+Clearly state that this is a reusable frontend dashboard foundation, not a complete business application.
+
+### 8.2 Features
+
+Document available features:
+
+- React + Vite + TypeScript.
+- Tailwind CSS.
+- Reusable UI components.
+- Dashboard layout.
+- Authentication UI.
+- Mock authentication.
+- Protected routes.
+- Dark mode.
+- Light mode.
+- System theme preference.
+- Responsive navigation.
+- Dashboard analytics.
+- Data tables.
+- Search and debounce.
+- Filtering and pagination.
+- API client.
+- Mock API services.
+- REST API integration preparation.
+
+Only list features that actually exist in the repository.
+
+### 8.3 Technology Stack
+
+Document actual dependencies and versions from `package.json`.
+
+Include:
+- React.
+- Vite.
+- TypeScript.
+- Tailwind CSS.
+- React Router.
+- Lucide React.
+- Recharts.
+- Other relevant dependencies.
+
+Do not list packages that are not installed.
+
+### 8.4 Prerequisites
+
+Explain required development tools:
+
+- Node.js.
+- npm.
+- Git.
+- Code editor.
+
+Use actual version requirements from project configuration.
+
+Include commands to verify installations:
+
+```bash
+node --version
+npm --version
+git --version
+```
+
+### 8.5 Installation & Setup
+
+Provide a complete step-by-step guide.
+
+Example:
+
+```bash
+git clone <repository-url>
+cd <project-directory>
+npm install
+```
+
+Create environment configuration:
+
+```bash
+cp .env.example .env
+```
+
+Then explain each environment variable.
+
+Example:
+
+```env
+VITE_API_BASE_URL=http://localhost:8080/api/v1
+VITE_USE_MOCK_API=true
+```
+
+Explain:
+- How to run development mode.
+- How to build production.
+- How to preview production.
+- How to run linting and type checks if available.
+
+Use actual scripts from `package.json`.
+
+Do not invent npm scripts.
+
+### 8.6 Project Structure
+
+Document the actual source code structure.
+
+Explain the responsibilities of important directories:
+
+- `components/`
+- `layouts/`
+- `pages/`
+- `routes/`
+- `hooks/`
+- `contexts/`
+- `services/`
+- `mocks/`
+- `lib/`
+- `types/`
+- `constants/`
+- `assets/`
+- `docs/`
+
+Use the actual project structure rather than an idealized structure that does not exist.
+
+Include a directory tree.
+
+Explain where developers should put new features.
+
+### 8.7 How to Customize This Starter for a New Project
+
+This is one of the most important sections.
+
+Provide a practical step-by-step guide for turning this starter into a new application.
+
+#### A. Rename the Project
+
+Explain how to rename:
+- Project directory.
+- `package.json` name.
+- README title.
+- Browser document title.
+- Application name.
+- Vite-related configuration where necessary.
+- Git repository remote.
+
+Provide commands and examples.
+
+Example:
+
+```bash
+npm pkg set name="my-new-dashboard"
+```
+
+Explain how to verify the changes.
+
+#### B. Change Branding
+
+Explain how to replace:
+- Application logo.
+- Application name.
+- Sidebar branding.
+- Login page branding.
+- Authentication promotional content.
+- Favicon.
+- Browser title.
+
+Identify the actual files responsible for branding.
+
+Prefer centralized application configuration rather than hardcoding branding in multiple components.
+
+If not already implemented, create a reusable configuration such as:
+
+`src/config/app.config.ts`
+
+Example:
+
+```ts
+export const appConfig = {
+  name: "My Application",
+  description: "My Application Dashboard",
+  shortName: "MyApp",
+};
+```
+
+Adapt this example to the actual project architecture.
+
+#### C. Change Theme Colors
+
+Explain how to customize:
+- Primary color.
+- Background.
+- Surface.
+- Foreground.
+- Border.
+- Success.
+- Warning.
+- Danger.
+- Dark mode colors.
+
+Identify the actual CSS variables or theme configuration files.
+
+Explain how to preserve consistency across light and dark modes.
+
+#### D. Change Navigation
+
+Explain how to:
+- Add a navigation item.
+- Remove a navigation item.
+- Rename a navigation item.
+- Change its icon.
+- Add a new route.
+- Group navigation items.
+- Add role-based navigation in the future.
+
+Prefer centralized navigation configuration where practical.
+
+#### E. Add a New Page
+
+Provide a complete example of adding a new page.
+
+For example:
+
+`/invoices`
+
+Explain:
+1. Create the page component.
+2. Register the route.
+3. Add navigation configuration.
+4. Create page-specific types.
+5. Create a service module.
+6. Add mock data if needed.
+7. Connect the page to the API.
+8. Test the page.
+
+#### F. Remove Unused Features
+
+Explain how to safely remove:
+- Demo pages.
+- Mock data.
+- Unused navigation.
+- Unused UI components.
+- Unnecessary dependencies.
+
+Mention important dependencies and shared components that should not be removed without checking their usage.
+
+#### G. Customize Authentication
+
+Explain:
+- How mock authentication works.
+- How to change authentication UI.
+- How to replace mock authentication with a Go backend.
+- Where to configure login and logout.
+- Where to implement the current-user request.
+- Where to configure token or cookie handling according to the backend contract.
+
+Clearly explain that frontend mock authentication is not production security.
+
+### 8.8 API Integration Guide
+
+Explain how to connect a new backend.
+
+Include:
+- Configure `VITE_API_BASE_URL`.
+- Disable mock API mode.
+- Update service modules.
+- Define request and response types.
+- Handle API errors.
+- Configure authentication.
+- Configure CORS on the backend.
+
+Use `docs/API_CONTRACT.md` as the authoritative frontend/backend integration reference.
+
+Explain how to adapt the contract when a future project uses a different backend.
+
+### 8.9 Mock Data Guide
+
+Explain:
+- Where mock data lives.
+- How to add new mock records.
+- How mock services work.
+- How search and pagination work.
+- How to replace mock services with real services.
+
+Ensure developers understand that UI pages should not import mock data directly.
+
+### 8.10 Theme Customization
+
+Explain:
+- How to enable or disable theme options.
+- How theme persistence works.
+- How to customize light mode.
+- How to customize dark mode.
+- How to customize system preference.
+- How to add new theme tokens.
+
+### 8.11 Reusable Component Guide
+
+Document important reusable components.
+
+For each component, explain:
+- Purpose.
+- Location.
+- Basic usage.
+- Important props.
+
+Prioritize:
+- Button.
+- Input.
+- Card.
+- Badge.
+- Modal.
+- Dropdown.
+- DataTable.
+- Pagination.
+- StatCard.
+- EmptyState.
+- Skeleton.
+
+Include practical code examples.
+
+### 8.12 Development Guidelines
+
+Explain the conventions developers should follow:
+
+- Reuse existing components.
+- Keep business logic separate from presentation.
+- Use TypeScript.
+- Keep API calls inside services.
+- Keep mock data separated.
+- Follow the existing design system.
+- Use the reusable debounce hook.
+- Maintain dark and light mode compatibility.
+- Keep components focused.
+- Avoid unnecessary dependencies.
+
+Reference `AGENTS.md` for AI coding agent instructions.
+
+### 8.13 Troubleshooting
+
+Document common issues:
+
+- npm install failures.
+- Port already in use.
+- Environment variables not loading.
+- API connection failures.
+- CORS errors.
+- Authentication redirect issues.
+- Dark mode not persisting.
+- Build failures.
+- TypeScript errors.
+
+Provide practical solutions.
+
+### 8.14 Production Build & Deployment
+
+Explain:
+- Production build.
+- Output directory.
+- Environment configuration.
+- Static hosting.
+- Nginx deployment considerations.
+- SPA fallback routing.
+- API URL configuration.
+
+Do not include secrets in frontend environment variables.
+
+### 8.15 Documentation Index
+
+At the end of README, provide links to:
 
 - `AGENTS.md`
 - `DESIGN_BRIEF.md`
 - `docs/API_CONTRACT.md`
 - `docs/BACKEND_INTEGRATION.md`
-
-Inspect all existing implementations before making recommendations.
-
-Do not assume that existing implementations are correct simply because they work.
+- `docs/UI_UX_AUDIT.md` if present.
+- Other relevant documentation.
 
 ---
 
-# PART A — SENIOR UI/UX ENGINEER AUDIT
-
-## 2. Visual Design Audit
-
-Evaluate the entire application.
-
-Inspect:
-
-### Design System
-- Color consistency.
-- Typography hierarchy.
-- Font sizes and weights.
-- Spacing consistency.
-- Border radius consistency.
-- Border and shadow usage.
-- Icon consistency.
-- Component sizing.
-- Visual hierarchy.
-
-Check whether components follow a unified design system or use inconsistent styling.
-
-Identify duplicated or conflicting design tokens.
-
-### Layout
-- Sidebar proportions.
-- Header height.
-- Main content width.
-- Content alignment.
-- Page padding.
-- Card spacing.
-- Section spacing.
-- Table density.
-- Overall visual balance.
-
-Evaluate whether the interface feels like a polished SaaS application rather than a generic dashboard template.
-
-### Page-by-Page Review
-
-Review every available route:
-
-Authentication:
-- Login.
-- Register.
-- Forgot Password.
-
-Dashboard:
-- Overview.
-- Analytics.
-- Users.
-- Products.
-- Orders.
-- Settings.
-
-For each page, evaluate:
-
-1. Information hierarchy.
-2. Content organization.
-3. Visual consistency.
-4. Readability.
-5. Spacing.
-6. Interaction clarity.
-7. Responsiveness.
-8. Empty and loading states.
-
-Identify pages that feel unfinished, repetitive, visually weak, or inconsistent.
-
-## 3. UX & Interaction Audit
-
-Test every interactive component.
-
-Inspect:
-
-- Sidebar navigation.
-- Collapsed sidebar.
-- Mobile navigation drawer.
-- Dropdowns.
-- Search inputs.
-- Debounced search.
-- Filters.
-- Pagination.
-- Tabs.
-- Modals.
-- Forms.
-- Date selectors.
-- Theme switcher.
-- Notification menu.
-- User profile menu.
-- Logout flow.
-
-Verify that:
-
-- Every interactive element has a clear purpose.
-- Actions produce appropriate feedback.
-- Loading states are visible.
-- Errors are understandable.
-- Destructive actions have confirmation when appropriate.
-- Empty states explain what users can do next.
-- Form validation provides useful feedback.
-- Keyboard interaction works.
-
-Identify confusing interactions and unnecessary user steps.
-
-## 4. Authentication UX Audit
-
-Review all authentication pages.
-
-Login:
-- Form hierarchy.
-- Input usability.
-- Password visibility.
-- Validation.
-- Remember me behavior.
-- Loading state.
-- Error feedback.
-
-Register:
-- Form complexity.
-- Password confirmation.
-- Validation feedback.
-- Terms acceptance.
+# PART D — REUSABILITY & PROJECT STANDARDIZATION
 
-Forgot Password:
-- Clear recovery instructions.
-- Submission feedback.
-- Success state.
+## 9. Centralize Project Configuration
 
-Also review navigation between authentication pages.
+Evaluate whether project-specific configuration is scattered across multiple files.
 
-Make sure the mock authentication experience is clearly separated from real security functionality.
-
-## 5. Dark Mode & Light Mode Audit
-
-Inspect both themes across every route.
-
-Check:
+If necessary, centralize:
 
-- Background and surface contrast.
-- Text readability.
-- Border visibility.
-- Input appearance.
-- Dropdown appearance.
-- Modal appearance.
-- Sidebar appearance.
-- Chart colors.
-- Tooltip readability.
-- Badge contrast.
-- Focus indicators.
+- Application name.
+- Application description.
+- Branding.
+- Navigation.
+- Theme defaults.
+- API configuration.
 
-Verify:
-- Light mode.
-- Dark mode.
-- System preference.
-- Theme persistence.
-- Theme switching without inconsistent visual states.
+Avoid creating excessive configuration abstractions.
 
-Check for hardcoded colors that bypass the centralized theme system.
+A new project should require minimal changes to customize its identity.
 
-Fix any component that does not properly support both themes.
-
-## 6. Responsive Design Audit
-
-Test these viewport sizes:
-
-| Device | Viewport |
-|---|---|
-| Mobile Small | 320 × 568 |
-| Mobile | 375 × 812 |
-| Mobile Large | 430 × 932 |
-| Tablet | 768 × 1024 |
-| Laptop | 1366 × 768 |
-| Desktop | 1440 × 900 |
-| Large Desktop | 1920 × 1080 |
-
-Inspect:
-
-- Horizontal overflow.
-- Sidebar behavior.
-- Header behavior.
-- Card grid.
-- Chart sizing.
-- Table responsiveness.
-- Modal sizing.
-- Form width.
-- Typography scaling.
-- Touch target sizes.
-
-Do not simply shrink desktop layouts.
-
-Design appropriate responsive behavior for each component.
-
-## 7. Accessibility Audit
-
-Evaluate accessibility using WCAG 2.2 AA as the target.
-
-Inspect:
-
-- Semantic HTML.
-- Heading hierarchy.
-- Form labels.
-- Accessible names.
-- Keyboard navigation.
-- Focus management.
-- Focus visibility.
-- Color contrast.
-- ARIA usage.
-- Modal accessibility.
-- Dropdown accessibility.
-- Screen reader compatibility.
-- Reduced motion preferences.
+## 10. Reusability Requirements
 
-Avoid unnecessary ARIA attributes when semantic HTML already provides the required accessibility.
+This starter will be used as the foundation for multiple future applications.
 
----
-
-# PART B — SENIOR FRONTEND ENGINEER AUDIT
-
-## 8. Architecture Audit
-
-Inspect the entire `src/` directory.
-
-Evaluate:
-
-- Folder organization.
-- Component responsibilities.
-- Separation of concerns.
-- Reusability.
-- Dependency direction.
-- Naming conventions.
-- File sizes.
-- Component complexity.
-- Code duplication.
-
-Identify:
-
-- God components.
-- Unnecessary abstractions.
-- Tightly coupled components.
-- Duplicated logic.
-- Circular dependencies.
-- Inconsistent patterns.
+Therefore:
 
-Check whether the architecture is appropriate for a reusable starter.
-
-Recommend improvements without introducing unnecessary architectural complexity.
-
-## 9. React Best Practices
-
-Review:
-
-- Component composition.
-- Hook usage.
-- State management.
-- Context usage.
-- Effect dependencies.
-- Memoization.
-- Event handling.
-- List rendering.
-- Keys.
-- Unnecessary re-renders.
-- Derived state.
-- Component lifecycle.
+- Avoid hardcoded business-specific terminology.
+- Keep generic dashboard components reusable.
+- Keep project-specific mock data isolated.
+- Keep branding configurable.
+- Keep navigation configurable.
+- Keep API services modular.
+- Keep design tokens centralized.
+- Keep authentication UI independent from backend implementation.
+- Avoid unnecessary dependencies on a particular backend framework.
 
-Pay particular attention to:
+The starter should be easy to clone and customize without modifying its fundamental architecture.
 
-- Unnecessary `useEffect`.
-- Incorrect effect dependencies.
-- Excessive `useMemo` and `useCallback`.
-- State duplication.
-- Prop drilling.
-- Context causing unnecessary re-renders.
-- Improper asynchronous state handling.
+## 11. README Accuracy Requirements
 
-Do not add memoization everywhere.
-
-Only optimize where there is a measurable or reasonable performance benefit.
-
-## 10. TypeScript Audit
-
-Review:
-
-- Strict typing.
-- Component prop interfaces.
-- API response types.
-- Generic types.
-- Optional properties.
-- Nullable values.
-- Type assertions.
-- Usage of `any`.
-- Error typing.
-- Type duplication.
+This is critical.
 
-Requirements:
+Before writing documentation:
 
-- Avoid `any`.
-- Prefer explicit interfaces for public component APIs.
-- Use generics where they improve reusability.
-- Keep API types separate from UI-specific types.
-- Avoid unnecessary type complexity.
-
-Ensure TypeScript compilation succeeds.
-
-## 11. API Contract & Service Layer Audit
-
-Review the API architecture.
-
-Inspect:
-
-- API client.
-- Endpoint definitions.
-- Service modules.
-- Mock services.
-- API response types.
-- Error handling.
-- Query parameter handling.
-- Pagination.
-- Search integration.
-- Environment variables.
+1. Inspect actual source code.
+2. Inspect `package.json`.
+3. Inspect Vite configuration.
+4. Inspect Tailwind configuration.
+5. Inspect environment files.
+6. Inspect routing.
+7. Inspect API client and services.
+8. Inspect authentication implementation.
+9. Inspect theme implementation.
+10. Inspect the actual Go backend response implementation if accessible.
 
-Verify:
+Never document functionality that does not exist.
 
-- Pages do not directly call `fetch`.
-- Components do not contain API endpoint URLs.
-- Services return predictable typed data.
-- Mock and real API modes follow consistent interfaces.
-- API errors are handled centrally.
-- Request cancellation works where needed.
-- Stale responses cannot overwrite newer results.
-- Environment configuration is safe and documented.
+If a feature is only partially implemented, clearly explain its current status.
 
-Evaluate whether the architecture can support a Go or Laravel REST API without rewriting the UI.
+Do not use hypothetical file paths in instructions without verifying them.
 
-## 12. Search & Debounce Audit
+All commands must be executable in the actual project environment.
 
-Review the implementation of `useDebounce`.
+## 12. Final Verification
 
-Check:
+After updating documentation and configuration:
 
-- Configurable debounce delay.
-- Default 300ms delay.
-- Timeout cleanup.
-- Correct dependency handling.
-- TypeScript generics.
-- Search performance.
-- Case-insensitive matching.
-- Whitespace handling.
-- Pagination reset.
-- Empty search handling.
-- API request cancellation.
+- Verify all README file paths.
+- Verify all documented npm commands.
+- Verify environment variable names.
+- Verify API examples against Go source code.
+- Verify TypeScript types against the API contract.
+- Verify that project renaming instructions are correct.
+- Verify that branding customization instructions point to actual files.
+- Run TypeScript checks.
+- Run linting if available.
+- Run production build.
+- Ensure no existing functionality has been broken.
 
-Ensure debounce is implemented consistently across searchable pages.
+## 13. Expected Deliverables
 
-Avoid unnecessary duplicate search logic.
+Complete the following:
 
-## 13. Authentication & Security Audit
+1. Updated `docs/API_CONTRACT.md`.
+2. Updated `docs/BACKEND_INTEGRATION.md`.
+3. Comprehensive root `README.md`.
+4. Updated TypeScript API response types.
+5. Updated API client and service modules if required.
+6. Centralized application configuration if needed.
+7. Updated `.env.example` if needed.
+8. Updated documentation links and references.
 
-Review the mock authentication implementation.
+Create or update any additional documentation only when genuinely useful.
 
-Inspect:
+## 14. Final Report
 
-- AuthContext.
-- Protected routes.
-- Public routes.
-- Login state.
-- Logout.
-- Session persistence.
-- Redirect behavior.
-- Token handling preparation.
+Provide:
 
-Important security considerations:
+- Go backend repository inspected.
+- Actual response structure discovered.
+- Important differences from the previous API contract.
+- API files modified.
+- README sections created.
+- Configuration improvements.
+- Instructions for creating a new project from this starter.
+- Verification results.
+- Remaining limitations.
 
-- Never store plaintext passwords.
-- Never claim localStorage mock authentication is secure.
-- Do not expose secrets through Vite environment variables.
-- Never place private API keys in frontend code.
-- Do not trust frontend route protection as backend authorization.
-- Avoid logging sensitive authentication data.
-- Ensure logout clears mock session state.
+Be transparent about anything that could not be verified.
 
-Document security limitations of the starter.
+Do not claim the API contract is aligned if the actual backend source was unavailable.
 
-Do not implement a production authentication system without an explicit backend contract.
-
-## 14. Performance Audit
-
-Inspect:
-
-- Bundle size.
-- Dependency size.
-- Code splitting.
-- Lazy loading.
-- Route loading.
-- Image handling.
-- Chart rendering.
-- Large table rendering.
-- Unnecessary re-renders.
-- Expensive filtering.
-- Duplicate calculations.
-- Unused dependencies.
-
-Evaluate whether:
-
-- Routes should use React.lazy.
-- Heavy components should be loaded on demand.
-- Images have appropriate dimensions.
-- Large datasets need optimized rendering.
-- Dependencies can be reduced.
-
-Avoid premature optimization.
-
-Prioritize improvements with meaningful impact.
-
-## 15. Error Handling & Reliability
-
-Review:
-
-- Error boundaries.
-- Loading states.
-- Empty states.
-- API errors.
-- Form errors.
-- Invalid routes.
-- Failed requests.
-- Async operations.
-- Unexpected null values.
-
-Ensure the application does not crash because of common runtime errors.
-
-Provide meaningful user feedback when something fails.
-
-## 16. Code Quality & Maintainability
-
-Check:
-
-- Naming consistency.
-- File organization.
-- Component size.
-- Repeated code.
-- Dead code.
-- Unused imports.
-- Console warnings.
-- Console errors.
-- Dependency usage.
-- Comments.
-- Documentation.
-
-Avoid unnecessary complexity.
-
-The project should be easy for another developer to understand and extend.
-
----
-
-# PART C — AUDIT EXECUTION
-
-## 17. Audit Methodology
-
-Perform the audit in the following order:
-
-### Step 1: Project Discovery
-
-Inspect:
-
-- Project structure.
-- Dependencies.
-- Configuration.
-- Existing documentation.
-- Routes.
-- Components.
-- Hooks.
-- Services.
-- Mock data.
-
-Understand the current implementation before modifying anything.
-
-### Step 2: Build & Static Analysis
-
-Run available checks:
-
-- TypeScript compilation.
-- ESLint.
-- Production build.
-- Dependency inspection.
-
-Identify existing errors and warnings.
-
-Do not assume a successful build means the application is high quality.
-
-### Step 3: UI Inspection
-
-If browser or screenshot testing tools are available:
-
-- Launch the application.
-- Inspect every route.
-- Test desktop and mobile layouts.
-- Inspect both themes.
-- Test interactive behavior.
-
-If browser testing is unavailable, perform a source-level audit and explicitly document which visual and behavioral checks could not be verified.
-
-Never claim to have visually tested a page without actually inspecting it.
-
-### Step 4: Findings & Prioritization
-
-Classify findings into:
-
-- P0 — Critical: Security vulnerabilities, broken application, major functional failures.
-- P1 — High: Major UX issues, broken navigation, serious responsiveness problems, architectural defects.
-- P2 — Medium: Inconsistent components, accessibility issues, maintainability problems, performance improvements.
-- P3 — Low: Minor visual polish, small refinements, non-critical optimizations.
-
-For every finding provide:
-
-- Finding ID.
-- Category.
-- Severity.
-- Affected file or component.
-- Description.
-- Why it matters.
-- Recommended solution.
-
-### Step 5: Create Audit Documentation
-
-Create:
-
-`docs/UI_UX_AUDIT.md`
-
-Include:
-- Overall UI/UX assessment.
-- Design system findings.
-- Page-by-page findings.
-- Responsive findings.
-- Accessibility findings.
-- Prioritized improvement list.
-
-Create:
-
-`docs/FRONTEND_AUDIT.md`
-
-Include:
-- Architecture assessment.
-- React findings.
-- TypeScript findings.
-- API architecture findings.
-- Security findings.
-- Performance findings.
-- Code quality findings.
-- Prioritized improvement list.
-
-Create:
-
-`docs/AUDIT_ACTION_PLAN.md`
-
-Include:
-- Prioritized tasks.
-- Implementation order.
-- Dependencies between tasks.
-- Acceptance criteria.
-- Verification steps.
-
----
-
-# PART D — IMPLEMENTATION & REFINEMENT
-
-## 18. Fix Implementation
-
-After completing the audit, implement the identified improvements.
-
-Rules:
-
-1. Fix P0 findings first.
-2. Fix P1 findings next.
-3. Address P2 findings where practical.
-4. Apply low-risk P3 refinements when appropriate.
-5. Do not modify working code without a clear reason.
-6. Preserve existing functionality.
-7. Follow `AGENTS.md` and `DESIGN_BRIEF.md`.
-8. Keep the architecture simple.
-9. Avoid unnecessary dependencies.
-10. Do not redesign the application without considering the existing design system.
-
-Do not stop after creating audit reports.
-
-Actually implement the agreed improvements.
-
-For substantial changes, update the action plan and work incrementally.
-
-## 19. Quality Acceptance Criteria
-
-The project should satisfy these conditions:
-
-### UI/UX
-- Consistent design system.
-- Professional SaaS visual quality.
-- Consistent spacing and typography.
-- Responsive across target viewports.
-- Complete dark and light theme support.
-- Clear interaction feedback.
-- Accessible forms and navigation.
-
-### Frontend
-- No TypeScript errors.
-- No critical runtime errors.
-- Clean component responsibilities.
-- Reusable architecture.
-- Predictable state management.
-- Centralized API handling.
-- Consistent mock and real service interfaces.
-- Functional search and debounce.
-- Proper error and loading handling.
-
-### Reliability
-- All routes work.
-- Authentication mock flow works.
-- Theme persistence works.
-- Search and pagination work.
-- Dropdowns and modals work.
-- Production build succeeds.
-
-## 20. Final Report
-
-Provide a professional audit summary containing:
-
-1. Overall assessment.
-2. UI/UX score from 1–10.
-3. Frontend engineering score from 1–10.
-4. Critical and high-priority findings.
-5. Improvements implemented.
-6. Remaining issues.
-7. Files significantly modified.
-8. Build and TypeScript verification results.
-9. Tests actually performed.
-10. Recommendations for the next development iteration.
-
-Be honest and objective.
-
-Do not give inflated scores just because the application looks visually appealing.
-
-Evaluate the project based on production-grade engineering standards.
-
-The ultimate goal is to transform this project into a high-quality, reusable SaaS Dashboard Starter.
-
-Start with a complete audit, document the findings, and then implement the necessary improvements.
+Start with repository discovery and source inspection. Then update the API contract, implementation types where necessary, and finally write the complete README documentation.

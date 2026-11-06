@@ -1,29 +1,35 @@
-export interface Meta {
-  timestamp: string;
-  [key: string]: unknown;
+export interface ResponseMeta {
+  message: string;
+  code: number;
+  error_code?: string;
+  detail?: string;
 }
 
-export interface PaginationMeta extends Meta {
-  page: number;
-  per_page: number;
-  total: number;
-  total_pages: number;
+export interface PageMeta {
+  current_page: number;
+  total_data: number;
+  limit: number;
+  total_page: number;
 }
 
 export interface ApiResponse<T> {
-  success: true;
-  message: string;
   data: T | null;
-  meta: Meta;
+  meta: ResponseMeta;
 }
 
-export interface PaginatedResponse<T> extends ApiResponse<T[]> {
-  meta: PaginationMeta;
+export interface PaginatedResponse<T> extends ApiResponse<T> {
+  page: PageMeta;
 }
 
 export interface ErrorResponse {
-  success: false;
   message: string;
-  errors?: Record<string, string[]>;
-  meta: Meta & { code?: string };
+  code: number;
+  error_code?: string;
+  detail?: string;
+  data?: { error?: unknown } | null;
+}
+
+export interface ApiErrorInfo {
+  status: number;
+  response: ErrorResponse;
 }

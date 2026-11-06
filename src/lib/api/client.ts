@@ -1,7 +1,32 @@
 import { ApiError } from "./errors";
-import type { ApiResponse, ErrorResponse } from "../../types/api";
+import type {
+  ApiResponse,
+  ApiErrorInfo,
+  ErrorResponse,
+  PaginatedResponse,
+  ResponseMeta,
+} from "../../types/api";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
+
+let authToken: string | null = null;
+let csrfToken: string | null = null;
+
+export function setAuthToken(token: string | null) {
+  authToken = token;
+}
+
+export function setCsrfToken(token: string | null) {
+  csrfToken = token;
+}
+
+export function getAuthToken(): string | null {
+  return authToken;
+}
+
+export function getCsrfToken(): string | null {
+  return csrfToken;
+}
 
 interface RequestOptions {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -10,6 +35,7 @@ interface RequestOptions {
   body?: unknown;
   signal?: AbortSignal;
   timeoutMs?: number;
+  skipAuth?: boolean;
 }
 
 async function parseJson<T>(response: Response): Promise<T> {
@@ -28,9 +54,8 @@ async function parseJson<T>(response: Response): Promise<T> {
 
 function emptyError(status: number): ErrorResponse {
   return {
-    success: false,
     message: `Request failed with status ${status}`,
-    meta: { timestamp: new Date().toISOString() },
+    code: status,
   };
 }
 
@@ -46,10 +71,11 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   }
 
   const controller = new AbortController();
-  const timeoutId =
-    options.timeoutMs !== undefined
-      ? setTimeout(() => controller.abort(), options.timeoutMs)
-      : null;
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+  if (options.timeoutMs !== undefined) {
+    timeoutId = setTimeout(() => controller.abort(), options.timeoutMs);
+  }
 
   const externalSignal = options.signal;
   const handleExternalAbort = () => controller.abort();
@@ -64,15 +90,25 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     }
   }
 
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...options.headers,
+  };
+
+  if (!options.skipAuth && authToken) {
+    headers["Authorization"] = `Bearer ${authToken}`;
+  }
+
+  if (csrfToken && options.method !== "GET") {
+    headers["X-CSRF-Token"] = csrfToken;
+  }
+
   let response: Response;
 
   try {
     response = await fetch(url.toString(), {
       method: options.method ?? "GET",
-      headers: {
-        "Content-Type": "application/json",
-        ...options.headers,
-      },
+      headers,
       body: options.body ? JSON.stringify(options.body) : undefined,
       signal: controller.signal,
     });
@@ -98,16 +134,30 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     throw new ApiError(error, response.status);
   }
 
-  const envelope = (await parseJson<ApiResponse<T>>(response)) as ApiResponse<T>;
+  const envelope = (await parseJson<ApiResponse<unknown>>(response)) as
+    | ApiResponse<unknown>
+    | undefined;
 
-  if (!envelope || !envelope.success) {
+  const meta: ResponseMeta = (envelope?.meta ?? {}) as ResponseMeta;
+
+  if (!envelope) {
+    throw new ApiError(emptyError(response.status), response.status);
+  }
+
+  if (meta.code >= 400) {
     throw new ApiError(
-      (envelope ?? emptyError(response.status)) as unknown as ErrorResponse,
-      response.status,
+      {
+        message: meta.message ?? `Request failed with code ${meta.code}`,
+        code: meta.code,
+        error_code: meta.error_code,
+        detail: meta.detail,
+        data: envelope.data as ErrorResponse["data"],
+      },
+      meta.code,
     );
   }
 
-  return envelope.data ?? (null as unknown as T);
+  return envelope.data as T;
 }
 
 export const api = {
@@ -126,3 +176,5 @@ export const api = {
   delete: <T>(path: string, options: RequestOptions = {}) =>
     request<T>(path, { ...options, method: "DELETE" }),
 };
+
+export type { ApiResponse, PaginatedResponse, ErrorResponse, ApiErrorInfo };

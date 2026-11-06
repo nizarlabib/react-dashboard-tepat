@@ -5,7 +5,6 @@ import type {
   ForgotPasswordRequest,
   LoginRequest,
   LoginResponse,
-  RegisterRequest,
 } from "../types/auth";
 import type { User } from "../types";
 
@@ -27,13 +26,10 @@ function validationError(
   status = 400,
 ): never {
   const error: ErrorResponse = {
-    success: false,
     message,
-    errors,
-    meta: {
-      timestamp: new Date().toISOString(),
-      code: "VALIDATION_ERROR",
-    },
+    code: status,
+    error_code: "ERR_VALIDATION_ERROR",
+    data: { error: errors },
   };
   throw new ApiError(error, status);
 }
@@ -41,11 +37,11 @@ function validationError(
 export const authMock = {
   login: async (request: LoginRequest): Promise<LoginResponse> => {
     if (
-      !request.email ||
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(request.email)
+      !request.username ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(request.username)
     ) {
       validationError("Validation failed", {
-        email: ["Enter a valid email address."],
+        username: ["Enter a valid email address."],
       });
     }
 
@@ -55,24 +51,18 @@ export const authMock = {
       });
     }
 
-    return mockResponse({ user: DEMO_USER, token: DEMO_TOKEN }, 700);
-  },
-
-  register: async (
-    request: RegisterRequest,
-  ): Promise<{ user: User }> => {
     return mockResponse(
       {
-        user: {
-          id: `usr_${Date.now()}`,
-          name: request.name,
-          email: request.email,
-          role: "Viewer",
-          status: "invited",
-          joinedAt: new Date().toISOString().slice(0, 10),
-          lastActive: "Invitation sent",
-        },
+        access_token: DEMO_TOKEN,
+        refresh_token: `${DEMO_TOKEN}_refresh`,
       },
+      700,
+    );
+  },
+
+  register: async (): Promise<{ message: string }> => {
+    return mockResponse(
+      { message: "user successfuly registered" },
       800,
     );
   },
@@ -102,5 +92,22 @@ export const authMock = {
 
   resetPassword: async (): Promise<null> => {
     return mockResponse(null, 700);
+  },
+
+  refreshToken: async (): Promise<{
+    access_token: string;
+    refresh_token: string;
+  }> => {
+    return mockResponse(
+      {
+        access_token: "mock_refreshed_access_token",
+        refresh_token: "mock_refreshed_refresh_token",
+      },
+      700,
+    );
+  },
+
+  csrfToken: async (): Promise<{ csrf_token: string }> => {
+    return mockResponse({ csrf_token: "mock_csrf_token" }, 300);
   },
 };

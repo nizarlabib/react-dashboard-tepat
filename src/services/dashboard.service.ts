@@ -1,5 +1,3 @@
-import { api } from "../lib/api/client";
-import { endpoints } from "../lib/api/endpoints";
 import type { ChartRange } from "../types";
 import type { Activity, RevenuePoint, Stat, Transaction } from "../types";
 import { dashboardMock } from "../mocks/dashboard.mock";
@@ -11,16 +9,20 @@ export const dashboardService = {
     if (USE_MOCK) {
       return dashboardMock.getOverview();
     }
-    return api.get<Stat[]>(endpoints.dashboard.overview());
+
+    throw new Error(
+      "GET /dashboard/overview is not implemented in go-starter-service. This is a frontend integration placeholder.",
+    );
   },
 
   getRevenue: async (range: ChartRange): Promise<RevenuePoint[]> => {
     if (USE_MOCK) {
       return dashboardMock.getRevenue(range);
     }
-    return api.get<RevenuePoint[]>(endpoints.dashboard.revenue(), {
-      query: { range },
-    });
+
+    throw new Error(
+      "GET /dashboard/revenue is not implemented in go-starter-service. This is a frontend integration placeholder.",
+    );
   },
 
   getGrowth: async (
@@ -29,9 +31,9 @@ export const dashboardService = {
     if (USE_MOCK) {
       return dashboardMock.getGrowth(range);
     }
-    return api.get<{ label: string; users: number; active: number }[]>(
-      endpoints.dashboard.revenue(),
-      { query: { range } },
+
+    throw new Error(
+      "GET /dashboard/growth is not implemented in go-starter-service. This is a frontend integration placeholder.",
     );
   },
 
@@ -39,13 +41,19 @@ export const dashboardService = {
     if (USE_MOCK) {
       return dashboardMock.getActivities();
     }
-    return api.get<Activity[]>(endpoints.dashboard.activities());
+
+    throw new Error(
+      "GET /dashboard/activities is not implemented in go-starter-service. This is a frontend integration placeholder.",
+    );
   },
 
   getTransactions: async (): Promise<Transaction[]> => {
     if (USE_MOCK) {
       return dashboardMock.getTransactions();
     }
-    return api.get<Transaction[]>(endpoints.dashboard.transactions());
+
+    throw new Error(
+      "GET /dashboard/transactions is not implemented in go-starter-service. This is a frontend integration placeholder.",
+    );
   },
 };

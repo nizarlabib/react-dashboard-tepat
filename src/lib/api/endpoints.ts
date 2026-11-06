@@ -4,6 +4,8 @@ export const endpoints = {
     register: () => "/auth/register",
     logout: () => "/auth/logout",
     me: () => "/auth/me",
+    csrfToken: () => "/auth/csrf_token",
+    refreshToken: () => "/auth/refresh-token",
     forgotPassword: () => "/auth/forgot-password",
     resetPassword: () => "/auth/reset-password",
   },

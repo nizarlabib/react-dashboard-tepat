@@ -1,5 +1,3 @@
-import { api } from "../lib/api/client";
-import { endpoints } from "../lib/api/endpoints";
 import type { GetOrdersParams } from "../types/order";
 import type { Transaction } from "../types";
 import { ordersMock } from "../mocks/orders.mock";
@@ -11,15 +9,19 @@ export const orderService = {
     if (USE_MOCK) {
       return ordersMock.getOrders(params);
     }
-    return api.get<Transaction[]>(endpoints.orders.list(), {
-      query: params as Record<string, unknown>,
-    });
+
+    throw new Error(
+      "GET /orders is not implemented in go-starter-service. This is a frontend integration placeholder.",
+    );
   },
 
   getOrder: async (id: string): Promise<Transaction> => {
     if (USE_MOCK) {
       return ordersMock.getOrder(id);
     }
-    return api.get<Transaction>(endpoints.orders.detail(id));
+
+    throw new Error(
+      "GET /orders/:id is not implemented in go-starter-service. This is a frontend integration placeholder.",
+    );
   },
 };

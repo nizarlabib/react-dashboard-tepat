@@ -1,13 +1,13 @@
-import { api } from "../lib/api/client";
+import { api, setAuthToken, setCsrfToken } from "../lib/api/client";
 import { endpoints } from "../lib/api/endpoints";
-import type { LoginResponse } from "../types/auth";
 import type {
-  ForgotPasswordRequest,
+  LoginResponse,
+  MeResponse,
+  CsrfTokenResponse,
   LoginRequest,
-  RegisterRequest,
+  ForgotPasswordRequest,
   ResetPasswordRequest,
 } from "../types/auth";
-import type { User } from "../types";
 import { authMock } from "../mocks/auth.mock";
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === "true";
@@ -17,55 +17,104 @@ export const authService = {
     if (USE_MOCK) {
       return authMock.login(request);
     }
-    return api.post<LoginResponse>(endpoints.auth.login(), {
+
+    const response = await api.post<LoginResponse>(endpoints.auth.login(), {
       body: request,
     });
+
+    setAuthToken(response.access_token);
+    return response;
   },
 
-  register: async (
-    request: RegisterRequest,
-  ): Promise<{ user: User }> => {
+  register: async (): Promise<{ message: string }> => {
     if (USE_MOCK) {
-      return authMock.register(request);
+      return authMock.register();
     }
-    return api.post<{ user: User }>(endpoints.auth.register(), {
-      body: request,
-    });
+
+    return api.post<{ message: string }>(endpoints.auth.register());
   },
 
-  logout: async (): Promise<null> => {
+  logout: async (): Promise<{ message: string }> => {
     if (USE_MOCK) {
-      return authMock.logout();
+      await authMock.logout();
+      setAuthToken(null);
+      setCsrfToken(null);
+      return { message: "success logout" };
     }
-    return api.post<null>(endpoints.auth.logout());
+
+    const response = await api.post<{ message: string }>(
+      endpoints.auth.logout(),
+    );
+    setAuthToken(null);
+    setCsrfToken(null);
+    return response;
   },
 
-  me: async (): Promise<User> => {
+  me: async (): Promise<MeResponse> => {
     if (USE_MOCK) {
-      return authMock.me();
+      const user = await authMock.me();
+      return {
+        id: Number(String(user.id).replace("usr_", "")) || 0,
+        fullname: user.name,
+        email: user.email,
+        role: user.role,
+        role_id: "",
+        permissions: "",
+        permission_mask: "",
+      };
     }
-    return api.get<User>(endpoints.auth.me());
+
+    const response = await api.get<{ me: MeResponse }>(endpoints.auth.me());
+    return response.me;
   },
 
   forgotPassword: async (
     request: ForgotPasswordRequest,
-  ): Promise<null> => {
+  ): Promise<{ message: string }> => {
     if (USE_MOCK) {
-      return authMock.forgotPassword(request);
+      await authMock.forgotPassword(request);
+      return { message: "email has been sent." };
     }
-    return api.post<null>(endpoints.auth.forgotPassword(), {
+
+    return api.post<{ message: string }>(endpoints.auth.forgotPassword(), {
       body: request,
     });
   },
 
   resetPassword: async (
     request: ResetPasswordRequest,
-  ): Promise<null> => {
+  ): Promise<{ message: string }> => {
     if (USE_MOCK) {
-      return authMock.resetPassword();
+      await authMock.resetPassword();
+      return { message: "password berhasil di reset" };
     }
-    return api.post<null>(endpoints.auth.resetPassword(), {
+
+    return api.post<{ message: string }>(endpoints.auth.resetPassword(), {
       body: request,
     });
+  },
+
+  refreshToken: async (): Promise<LoginResponse> => {
+    if (USE_MOCK) {
+      return authMock.refreshToken?.() ?? {
+        access_token: "mock_refreshed_token",
+        refresh_token: "mock_refreshed_refresh_token",
+      };
+    }
+
+    return api.post<LoginResponse>(endpoints.auth.refreshToken());
+  },
+
+  csrfToken: async (): Promise<CsrfTokenResponse> => {
+    if (USE_MOCK) {
+      return { csrf_token: "mock_csrf_token" };
+    }
+
+    const response = await api.get<CsrfTokenResponse>(
+      endpoints.auth.csrfToken?.() ?? "/auth/csrf_token",
+      { skipAuth: true },
+    );
+    setCsrfToken(response.csrf_token);
+    return response;
   },
 };
